@@ -59,8 +59,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(session(sessionOption));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors({origin: true, credentials: true}));
-
+//app.use(cors({origin: true, credentials: true}));
 
 const { swaggerUi, specs } = require("./swagger/swagger")
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs))
