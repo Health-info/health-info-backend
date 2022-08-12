@@ -30,36 +30,50 @@ const router = express.Router();
  *                required: true
  */
 
-router.post('/sendmail',mailLimiter, async(req, res) => {
+router.post('/sendmail',mailLimiter, async(req, res, next) => {
 
-  let authNum = Math.ceil(Math.random()*10000000);
-  let transporter = nodemailer.createTransport({
-      service: 'gmail',
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-          user: process.env.NODEMAILER_USER,
-          pass: process.env.NODEMAILER_PASS,
-      },
-  });
+  try {
+   
+    const exUser = await User.findOne({ where: { email  :req.body.mail } });
+    if (exUser) {
+      return res.status(403).json({
+        message: "Email that exists"
+      });
+    }
 
-  let mailOptions = {
-      from: `Healthinfo`,
-      to: req.body.mail,
-      subject: 'Healthinfo 회원가입 인증번호.',
-      text: "오른쪽 숫자를 입력해주세요 : " + authNum
-  };
-
-  transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-          console.error(error);
-          res.end('서버 에러')
-      }
-      req.session.authNum = authNum;
-      res.redirect('/');
-      transporter.close()
-  });
+    let authNum = Math.ceil(Math.random()*10000000);
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+            user: process.env.NODEMAILER_USER,
+            pass: process.env.NODEMAILER_PASS,
+        },
+    });
+  
+    let mailOptions = {
+        from: `Healthinfo`,
+        to: req.body.mail,
+        subject: 'Healthinfo 회원가입 인증번호.',
+        text: "오른쪽 숫자를 입력해주세요 : " + authNum
+    };
+  
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.error(error);
+            res.end('서버 에러')
+        }
+        req.session.authNum = authNum;
+        res.redirect('/');
+        transporter.close()
+    });
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+ 
 });
 /**
  * @swagger
