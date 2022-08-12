@@ -6,6 +6,7 @@ const session = require('express-session');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const passport = require('passport');
+const { swaggerUi, specs } = require("./swagger/swagger")
 const helmet = require('helmet');
 const hpp = require('hpp');
 
@@ -33,7 +34,7 @@ sequelize.sync({ force: true })
 
 if (process.env.NODE_ENV === 'production') {
   app.use(morgan('combined'));
-  //app.use(helmet());
+  app.use(helmet(  { contentSecurityPolicy: false }));
   app.use(hpp());
 } else {
   app.use(morgan('dev'));
@@ -59,9 +60,9 @@ if (process.env.NODE_ENV === 'production') {
 app.use(session(sessionOption));
 app.use(passport.initialize());
 app.use(passport.session());
-//app.use(cors({origin: true, credentials: true}));
+app.use(cors({origin: true, credentials: true}));
 
-const { swaggerUi, specs } = require("./swagger/swagger")
+
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs))
 app.use('/auth', authRouter);
 
