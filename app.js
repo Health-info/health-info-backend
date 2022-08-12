@@ -5,7 +5,6 @@ const path = require('path');
 const session = require('express-session');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const { swaggerUi, specs } = require('./swagger/swagger');
 const passport = require('passport');
 const helmet = require('helmet');
 const hpp = require('hpp');
@@ -62,6 +61,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors({origin: true, credentials: true}));
 
+
+const { swaggerUi, specs } = require("./swagger/swagger")
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs))
 app.use('/auth', authRouter);
 

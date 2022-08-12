@@ -1,22 +1,22 @@
 const swaggerUi = require("swagger-ui-express")
 const swaggereJsdoc = require("swagger-jsdoc")
-const dotenv = require('dotenv');
-dotenv.config();
 
 const options = {
   swaggerDefinition: {
     openapi: "3.0.0",
     info: {
-      version: "0.0.1",
-      title: "HealtInfo",
+      version: "1.0.0",
+      title: "개발이 취미인 남자",
+      description:
+        "프로젝트 설명 Node.js Swaager swagger-jsdoc 방식 RestFul API 클라이언트 UI",
     },
     servers: [
       {
-        url: process.env.URL
+        url: "http://localhost:8001", // 요청 URL
       },
     ],
   },
-  apis: ["./routes/*.js"], //Swagger 파일 연동
+  apis: ["./routers/*.js"], //Swagger 파일 연동
 }
 const specs = swaggereJsdoc(options)
 
