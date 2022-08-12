@@ -1,0 +1,15 @@
+id:
+    type: integer
+    primary key
+
+SmallpartId:
+  Smallpart 의 id 의 foreignkey
+
+name:
+    type: String(30)
+    allowNull: false,
+    unique: true ,
+
+description:
+    type: String(50),
+    allowNull: false,
