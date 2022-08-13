@@ -6,7 +6,8 @@ const session = require('express-session');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const passport = require('passport');
-const { swaggerUi, specs } = require("./swagger/swagger")
+const { swaggerUi, specs } = require("./swagger/swagger");
+const { isLoggedIn } = require('./routes/middlewares');
 const helmet = require('helmet');
 const hpp = require('hpp');
 
@@ -14,6 +15,10 @@ dotenv.config();
 
 
 const authRouter = require('./routes/auth');
+const bigpartRouter = require('./routes/bigpart');
+const smallpartRouter = require('./routes/smallpart');
+const exerciseRouter = require('./routes/exercise');
+const commentRouter = require('./routes/comment');
 
 const { sequelize } = require('./models');
 const passportConfig = require('./passport');
@@ -24,9 +29,10 @@ const app = express();
 passportConfig(); // 패스포트 설정
 app.set('port', process.env.PORT || 8001);
 
-sequelize.sync({ force: true })
-  .then(() => {
+sequelize.sync({ force: false })
+  .then(async ( ) => {
     console.log('데이터베이스 연결 성공');
+      
   })
   .catch((err) => {
     console.error(err);
@@ -65,8 +71,11 @@ app.use(cors({origin: true, credentials: true}));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs))
 app.use('/auth', authRouter);
-
-
+app.use(isLoggedIn);
+app.use('/bigpart', bigpartRouter);
+app.use('/smallpart', smallpartRouter)
+app.use('/exercise', exerciseRouter);
+app.use('/comment', commentRouter);
 app.use((req, res, next) => {
   const error =  new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
   error.status = 404;

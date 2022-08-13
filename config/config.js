@@ -11,7 +11,7 @@ module.exports = {
   test: {
     username: "root",
     password: process.env.SEQUELIZE_PASSWORD,
-    database: "nodebird_test",
+    database: 'healthinfo',
     host: "127.0.0.1",
     dialect: "mysql"
   },
