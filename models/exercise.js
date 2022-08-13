@@ -6,10 +6,9 @@ module.exports = class Exercise extends Sequelize.Model {
       name: {
         type: Sequelize.STRING(30),
         allowNull: false,
-        unique: true,
       },
       description: {
-        type: Sequelize.STRING(50),
+        type: Sequelize.TEXT('long'),
         allowNull: false,
       }
     }, {

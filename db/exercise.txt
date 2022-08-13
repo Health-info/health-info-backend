@@ -8,8 +8,7 @@ SmallpartId:
 name:
     type: String(30)
     allowNull: false,
-    unique: true ,
 
 description:
-    type: String(50),
+    type: lomg text,
     allowNull: false,
