@@ -119,7 +119,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(session(sessionOption));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors({origin: true, credentials: true}));
+app.use(cors());
 
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs))
