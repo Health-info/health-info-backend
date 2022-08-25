@@ -100,7 +100,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(cors({
-  origin: "http://localhost:7777",
+  origin: ["http://localhost:7777"],
   credentials:true,
 }))
 app.use(globalLimiter);
