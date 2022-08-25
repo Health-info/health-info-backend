@@ -100,8 +100,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(cors({
-  origin: true,
-  methods:['POST, OPTIONS, GET', 'DELETE'],
+  origin: "http://localhost:7777",
   credentials:true,
 }))
 app.use(globalLimiter);
