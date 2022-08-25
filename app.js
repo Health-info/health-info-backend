@@ -120,7 +120,7 @@ app.use(session(sessionOption));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors({
-  origin: "*",
+  origin: ["http://localhost:3000"],
   credentials: true, // 브라우저와 서버간의 쿠키 공유
 }));
 
