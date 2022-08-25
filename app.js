@@ -99,7 +99,11 @@ if (process.env.NODE_ENV === 'production') {
   app.use(morgan('dev'));
 }
 
-
+app.use(cors({
+  origin: true,
+  methods:['POST, OPTIONS, GET', 'DELETE'],
+  credentials:true,
+}))
 app.use(globalLimiter);
 app.use(express.static('public'));
 app.use(express.json());
@@ -118,13 +122,11 @@ if (process.env.NODE_ENV === 'production') {
   sessionOption.proxy = true;
   // sessionOption.cookie.secure = true;
 }
+
 app.use(session(sessionOption));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors({
-  origin: true,
-  credentials: true, // 브라우저와 서버간의 쿠키 공유
-}));
+
 
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs))
