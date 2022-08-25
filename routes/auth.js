@@ -127,6 +127,7 @@ router.post('/sendmail',mailLimiter, async(req, res, next) => {
  *                  default: "authNumCheck success"
  */
 router.post('/authNumCheck',  authNumCheckLimiter, async(req, res) => {
+
   if(req.body.authNum === req.session.authNum) {
     req.session.authNum = '';
     req.session.next = true;

@@ -119,7 +119,10 @@ if (process.env.NODE_ENV === 'production') {
 app.use(session(sessionOption));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  credentials: true, // 브라우저와 서버간의 쿠키 공유
+}));
 
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs))
