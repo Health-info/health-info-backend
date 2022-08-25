@@ -99,7 +99,9 @@ if (process.env.NODE_ENV === 'production') {
   app.use(morgan('dev'));
 }
 
+
 app.use(globalLimiter);
+app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
@@ -120,7 +122,7 @@ app.use(session(sessionOption));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors({
-  origin: ["http://localhost:3000"],
+  origin: true,
   credentials: true, // 브라우저와 서버간의 쿠키 공유
 }));
 
