@@ -17,8 +17,7 @@ const router = express.Router();
  *    description: "POST 방식으로 이메일을 인증한다."
  *    tags: [Users]
  *    requestBody:
- *      description: 이메일로 인증번호를 발송합니다. 1분에 한번만 발송할 수 있습니다. 성공 이후에는 '/' 로 리다이렉트 됩니다.
- *      required: true
+ *      description: 이메일로 인증번호를 발송합니다. 1분에 한번만 발송할 수 있습니다.
  *      content:
  *        application/json:
  *          schema:
@@ -28,6 +27,20 @@ const router = express.Router();
  *                type: string
  *                description: "유저의 이메일"
  *                required: true
+ *    responses:
+ *      "200":
+ *        description: "메일 발송 성공시 응답"
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                code:
+ *                  type: integer
+ *                  default: 200
+ *                message:
+ *                  type: string
+ *                  default: 'email sending success'
  */
 
 router.post('/sendmail',mailLimiter, async(req, res, next) => {
@@ -66,7 +79,10 @@ router.post('/sendmail',mailLimiter, async(req, res, next) => {
             res.end('서버 에러')
         }
         req.session.authNum = authNum;
-        res.redirect('/');
+        res.status(200).json({
+          code: 200,
+          message: 'email sending success'
+        });
         transporter.close()
     });
   } catch (error) {
@@ -84,7 +100,7 @@ router.post('/sendmail',mailLimiter, async(req, res, next) => {
  *    description: "POST 방식으로 인증번호를 확인한다.."
  *    tags: [Users]
  *    requestBody:
- *      description: 인증번호가 맞는지 확인합니다. 1분에 최대 30번 확인 가능합니다. 인증성공 이후에는 '/' 로 리다이렉트 됩니다.
+ *      description: 인증번호가 맞는지 확인합니다. 1분에 최대 30번 확인 가능합니다. 
  *      required: true
  *      content:
  *        application/json:
@@ -95,12 +111,29 @@ router.post('/sendmail',mailLimiter, async(req, res, next) => {
  *                type: integer
  *                description: "인증번호"
  *                required: true
+ *    responses:
+ *      "200":
+ *        description: "인증번호 인증 성공시 응답"
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                code:
+ *                  type: integer
+ *                  default: 200
+ *                message:
+ *                  type: string
+ *                  default: "authNumCheck success"
  */
 router.post('/authNumCheck',  authNumCheckLimiter, async(req, res) => {
   if(req.body.authNum === req.session.authNum) {
     req.session.authNum = '';
     req.session.next = true;
-    res.redirect('/');
+    res.status(200).json({
+      code: 200,
+      message: "authNumCheck success"
+    })
   } else {
     const message = encodeURIComponent('인증번호가 틀립니다.');
     res.redirect(`/?error=${message}`);
@@ -118,7 +151,7 @@ router.post('/authNumCheck',  authNumCheckLimiter, async(req, res) => {
  *    description: "POST 방식으로 유저를 등록한다."
  *    tags: [Users]
  *    requestBody:
- *      description: 회원가입 성공시 응답 데이터는 없습니다. 성공 이후에는 '/' 로 리다이렉트 됩니다. 이메일 인증번호 인증 후에만 회원가입이 가능합니다.
+ *      description: 이메일 인증번호 인증 후에만 회원가입이 가능합니다.
  *      required: true
  *      content:
  *        application/json:
@@ -157,8 +190,21 @@ router.post('/authNumCheck',  authNumCheckLimiter, async(req, res) => {
  *                description: "유저 키"
  *                required: true
  *                default: 179
+ *    responses:
+ *      "200":
+ *        description: "회원가입 성공시 응답"
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                code:
+ *                  type: integer
+ *                  default: 200
+ *                message:
+ *                  type: string
+ *                  default: "join success"
  */
-
 
 
 router.post('/join', isNotLoggedIn, async (req, res, next) => {
@@ -190,7 +236,10 @@ router.post('/join', isNotLoggedIn, async (req, res, next) => {
         weight,
       });
       req.session.destroy();
-      return res.status(200).redirect('/');
+      return res.status(200).json({
+        code: 200,
+        message: "join success"
+      });
     } catch (error) {
       console.error(error);
       return next(error);
@@ -210,7 +259,7 @@ router.post('/join', isNotLoggedIn, async (req, res, next) => {
  *    description: "POST 방식으로 로그인 한다."
  *    tags: [Users]
  *    requestBody:
- *      description: 로그인 성공의 응답데이터는 없습니다. 로그인 성공시 '/' 로 redirect 됩니다.
+ *      description: 로그인API 입니다.
  *      required: true
  *      content:
  *        application/json:
@@ -225,6 +274,20 @@ router.post('/join', isNotLoggedIn, async (req, res, next) => {
  *                type: string
  *                description: "유저 비밀번호"
  *                required: true
+ *    responses:
+ *      "200":
+ *        description: "로그인 성공시 응답"
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                code:
+ *                  type: integer
+ *                  default: 200
+ *                message:
+ *                  type: string
+ *                  default: "login success"
  */
 
 router.post('/login', isNotLoggedIn, (req, res, next) => {
@@ -241,7 +304,10 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
         console.error(loginError);
         return next(loginError);
       }
-      return res.status(200).redirect('/');
+      return res.status(200).json({
+        code: 200,
+        message: "login success"
+      });
     });
   })(req, res, next); // 미들웨어 내의 미들웨어에는 (req, res, next)를 붙입니다.
 });
@@ -251,7 +317,7 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
  * /auth/logout:
  *  get:
  *    summary: "유저 로그아웃"
- *    description: 로그아웃 성공시의 응답 데이터는 없습니다. 로그아웃 성공시 '/' 로 redirect 됩니다.
+ *    description: 로그아웃 API 입니다.
  *    tags: [Users]
  */
 router.get('/logout', isLoggedIn, (req, res) => {
@@ -259,7 +325,10 @@ router.get('/logout', isLoggedIn, (req, res) => {
   req.logout(function(err) {
     if (err) { return next(err); }
     req.session.destroy();
-    res.status(200).redirect('/');
+    res.status(200).json({
+      code: 200,
+      message: 'logout success'
+    })
   });
 
 });
