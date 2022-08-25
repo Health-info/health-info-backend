@@ -114,7 +114,7 @@ const sessionOption = {
   cookie: {
     httpOnly: true,
     secure: false,
-    domain: ".localhost:7777"
+    domain: "http://localhost:7777"
   },
 };
 if (process.env.NODE_ENV === 'production') {
