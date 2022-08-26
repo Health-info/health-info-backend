@@ -93,14 +93,14 @@ sequelize.sync({ force: true })
 
 if (process.env.NODE_ENV === 'production') {
   app.use(morgan('combined'));
-  //app.use(helmet(  { contentSecurityPolicy: false }));
-  //app.use(hpp());
+  app.use(helmet(  { contentSecurityPolicy: false }));
+  app.use(hpp());
 } else {
   app.use(morgan('dev'));
 }
 
 app.use(cors({
-  origin: ["http://localhost:7777"],
+  origin: ['http://healthinfo.pe.kr'],
   credentials:true,
 }))
 app.use(globalLimiter);
@@ -114,18 +114,17 @@ const sessionOption = {
   cookie: {
     httpOnly: true,
     secure: false,
-    domain: "http://localhost:7777"
+    domain: process.env.NODE_ENV === 'production' && '.healthinfo.pe.kr'
   },
 };
 if (process.env.NODE_ENV === 'production') {
-  //sessionOption.proxy = true;
+  sessionOption.proxy = true;
   // sessionOption.cookie.secure = true;
 }
 
 app.use(session(sessionOption));
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs))
