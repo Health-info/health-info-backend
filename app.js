@@ -75,6 +75,7 @@ const sessionOption = {
     secure: false,
     domain: process.env.NODE_ENV === 'production' && '.healthinfo.pe.kr'
   },
+  name: 'session-cookie', // 디폴트 네임은 connect.sid
 };
 if (process.env.NODE_ENV === 'production') {
   sessionOption.proxy = true;

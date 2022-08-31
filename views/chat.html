@@ -53,6 +53,7 @@
     console.log('get/{{room.id}}')
     const socket = io.connect('{{URL}}chat', {
       path: '/socket.io',
+      transports: ['websocket'],
     });
 
     socket.emit('initialize', "give me userCount");
