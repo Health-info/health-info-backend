@@ -23,8 +23,7 @@ router.get('/', async (req, res, next) => {
 });
 router.get('/kick', (req, res, next) => {
   try {
-    
-    res.end('you are kicked by room owner');
+    res.render('kick', { message: "당신은 강퇴되었습니다." });
 
   } catch (error) {
     console.error(error);
