@@ -87,7 +87,7 @@ app.use(passport.session());
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs))
 app.use('/auth', authRouter);
-//app.use(isLoggedIn);
+app.use(isLoggedIn);
 app.use('/gifchat', gifchatRouter);
 app.use('/bigpart', bigpartRouter);
 app.use('/smallpart', smallpartRouter)
