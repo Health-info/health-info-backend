@@ -68,13 +68,7 @@ router.get('/room/:id', async (req, res, next) => {
     if (rooms && rooms[req.params.id] && room.max <= rooms[req.params.id].length) {
       return res.redirect('/?error=허용 인원이 초과하였습니다.');
     }
-    const chats = await Chat.findOne({
-      where: {
-        RoomId: req.params.id,
-        whisperto : ""
-      },
-      order: [['createdAt', 'ASC']]
-    })
+    const chats = null;
      req.session.roomId  = req.params.id;
     return res.render('chat', {
       room,
@@ -170,13 +164,13 @@ router.delete('/room/:id', async (req, res, next) => {
   }
 });
 
-router.post('/room/:id/chat', async (req, res, next) => {
+router.post('/room/:id/chat', (req, res, next) => {
   try {
-    const chat = await Chat.create({
+    const chat = {
       RoomId: req.params.id,
       user: req.user.nick,
       chat: req.body.chat,
-    });
+    };
 
     req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
     // chat네임스페이스의 req.params.id 방에 들어있는 사람들에게 보내는 메시지
@@ -187,17 +181,17 @@ router.post('/room/:id/chat', async (req, res, next) => {
   }
 });
 
-router.post('/room/:id/whisperchat', async (req, res, next) => {
+router.post('/room/:id/whisperchat', (req, res, next) => {
   try {
     //귓속말을 보낸다.
     //1. 방안에 그 사람이 있는지 확인한다 . // 프론트에서 처리 
     if(req.app.get('max').get(req.body.whisperto)){ // 방에 들어있음
-      const chat = await Chat.create({
+      const chat = {
         RoomId: req.params.id,
         user: req.user.nick, // 보낸 사람
         chat: req.body.chat,
         whisperto: req.body.whisperto, // 보낼 사람
-      });
+      };
       const io = req.app.get('io');
       const socketid1 = req.app.get('max').get(req.body.whisperto).slice(6);
       io.to(socketid1).emit('chat', chat);
