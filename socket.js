@@ -33,12 +33,12 @@ module.exports = (server, app, sessionMiddleware) => {
     const req = socket.request;
     if(req.session.passport){
       
+      
       const nick =  Object.values(req.session.passport.user)[1];
-      const { headers: { referer } } = req; // req.header.referer
-    
-      const roomId = referer
-        .split('/')[referer.split('/').length - 1]
-        .replace(/\?.+/, '');
+      console.log(req.headers)
+     
+      const roomId = req.session.roomId;
+      
       
       socket.join(roomId);  // chat 네임스페이스에서 roomId 방에 사용자를 집어넣는다
       max.set(nick, socket.id);
@@ -57,11 +57,10 @@ module.exports = (server, app, sessionMiddleware) => {
       
       socket.on('disconnect',() => {
         const req = socket.request;
-        const { headers: { referer } } = req; // req.header.referer
-        const roomId = referer
-          .split('/')[referer.split('/').length - 1]
-          .replace(/\?.+/, '');
-        const signedCookie = cookie.sign(req.signedCookies['connect.sid'], process.env.COOKIE_SECRET);
+        
+        const roomId = req.session.roomId;
+        delete req.session.roomId;
+        const signedCookie = cookie.sign(req.signedCookies['session-cookie'], process.env.COOKIE_SECRET);
         const connectSID = `${signedCookie}`; 
         max.delete(nick);
         max.delete(socket.id);
@@ -73,7 +72,7 @@ module.exports = (server, app, sessionMiddleware) => {
     
           axios.delete(`${process.env.URL}gifchat/room/${roomId}`, {
             headers: {
-              Cookie: `connect.sid=s%3A${connectSID}`  // 세션의 서명은 앞에 s%3A 를 붙여야 한다.
+              Cookie: `session-cookie=s%3A${connectSID}`  // 세션의 서명은 앞에 s%3A 를 붙여야 한다.
             } 
           })
             .then(() => {
@@ -86,13 +85,13 @@ module.exports = (server, app, sessionMiddleware) => {
         else {
           axios.get(`${process.env.URL}gifchat/room/${roomId}/update`, {
             headers: {
-              Cookie: `connect.sid=s%3A${connectSID}`  // 세션의 서명은 앞에 s%3A 를 붙여야 한다.
+              Cookie: `session-cookie=s%3A${connectSID}`  // 세션의 서명은 앞에 s%3A 를 붙여야 한다.
             } 
           })
           .then(() => {
             axios.get(`${process.env.URL}gifchat/room/${roomId}/owner`, {
               headers: {
-                Cookie: `connect.sid=s%3A${connectSID}`  // 세션의 서명은 앞에 s%3A 를 붙여야 한다.
+                Cookie: `session-cookie=s%3A${connectSID}`  // 세션의 서명은 앞에 s%3A 를 붙여야 한다.
               } 
             })   
               .then((response) => {

@@ -55,9 +55,9 @@ router.post('/room', async (req, res, next) => {
 
 router.get('/room/:id', async (req, res, next) => {
   try {
-    console.log(req.params.id);
+
     const room = await Room.findOne({ where : {id: req.params.id} });
-    console.log('room 의 id', room.id);
+    
     const io = req.app.get('io');
     if (!room) {
       return res.redirect('/?error=존재하지 않는 방입니다.');
@@ -76,7 +76,7 @@ router.get('/room/:id', async (req, res, next) => {
       },
       order: [['createdAt', 'ASC']]
     })
-    
+     req.session.roomId  = req.params.id;
     return res.render('chat', {
       room,
       title: room.title,
