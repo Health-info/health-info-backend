@@ -15,7 +15,7 @@ router.get('/', async (req, res, next) => {
   try {
     
     const rooms = await  Room.findAll({})
-    res.render('main', { rooms, title: 'GIF 채팅방', URL: process.env.URL });
+    res.render('main', { rooms, title: 'Healthinfo 채팅방', URL: process.env.URL });
   } catch (error) {
     console.error(error);
     next(error);
@@ -32,7 +32,7 @@ router.get('/kick', (req, res, next) => {
 });
 
 router.get('/room', (req, res) => {
-  res.render('room', { title: 'GIF 채팅방 생성' });
+  res.render('room', { title: 'Healthinfo 채팅방 생성' });
 });
 
 router.post('/room', async (req, res, next) => {
