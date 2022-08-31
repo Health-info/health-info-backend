@@ -1,0 +1,277 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <h1>{{title}}</h1>
+  <a href="/gifchat" id="exit-btn">방 나가기</a>
+  <fieldset>
+    <legend>채팅 내용</legend>
+    <div>참여자 수 <span id="userCount">0</span></div>
+    <div>방장 <span id="owner">{{owner}}</span></div>
+    <div id="chat-list">
+      {% for chat in chats %}
+        {% if chat.user === user  %}
+          <div class="mine" style="color: black">
+            <div>{{chat.user}}</div>
+            {% if chat.gif %}}
+              <img src="/gif/{{chat.gif}}">
+            {% else %}
+              <div>{{chat.chat}}</div>
+            {% endif %}
+          </div>
+        {% elif chat.user === 'system' %}
+          <div class="system">
+            <div>{{chat.chat}}</div>
+          </div>
+        {% else %}
+          <div class="other" style="color: {{black}}">
+            <div>{{chat.user}}</div>
+            {% if chat.gif %}
+              <img src="/gif/{{chat.gif}}">
+            {% else %}
+              <div>{{chat.chat}}</div>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </fieldset>
+  <form action="/chat" id="chat-form" method="post" enctype="multipart/form-data">
+    <label for="gif">GIF 올리기</label>
+    <input type="file" id="gif" name="gif" accept="image/gif">
+    <input type="text" id="chat" name="chat" placeholder="전체 채팅">
+    <button type="submit">전송</button>
+  </form>
+  <form action="/whisperchat" id="whisperchat-form" method="post">
+    <input type="text" id="whisperto" name="whisperto" placeholder="귓속말 보낼 사람의 id">
+    <input type="text" id="whisperchat" name="whisperchat">
+    <button type="submit">귓속말 전송</button>
+  </form>
+  <div id="forceDisconnet"></div>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    console.log('get/{{room.id}}')
+    const socket = io.connect('{{URL}}chat', {
+      path: '/socket.io',
+    });
+
+    socket.emit('initialize', "give me userCount");
+    socket.on('userCount', (data) => {
+      const userCount = document.querySelector('#userCount');
+      userCount.innerText  = data.userCount;
+    })
+    socket.on('join', function (data) {
+      const userCount = document.querySelector('#userCount');
+      userCount.innerText  = data.userCount;
+      const div = document.createElement('div');
+      div.classList.add('system');
+      const chat = document.createElement('div');
+      div.textContent = data.chat;
+      div.appendChild(chat);
+      document.querySelector('#chat-list').appendChild(div);
+    });
+    socket.on('exit', function (data) {
+     
+
+
+
+      const owner = document.querySelector('#owner');
+      owner.innerText = data.owner;
+      if(owner.innerText === `{{user}}`){
+        const forceDisconnect =   document.querySelector('#forceDisconnet');
+        forceDisconnect.innerHTML = `
+        <form action="/forceDisconnect" id="forceDisconnectform" method="post">
+      <input type="text" id="subject" name="subject" placeholder="강퇴할 사람의 id">
+      <button type="submit">강퇴하기</button>
+      </form>   
+        `
+      }
+        const forceDisconnectform = document.querySelector('#forceDisconnectform');
+        if(forceDisconnectform) {
+          document.querySelector('#forceDisconnectform').addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (e.target.subject.value) {
+          axios.post(`/gifchat/room/{{room.id}}/forceDisconnet`, {
+            subject: e.target.subject.value
+          })
+            .then(() => {
+              e.target.subject.value = '';
+            })
+            .catch((err) => {
+              console.error(err);
+            });
+        }
+      });
+        }
+
+
+      const userCount = document.querySelector('#userCount');
+      userCount.innerText  = data.userCount;
+      const div = document.createElement('div');
+      div.classList.add('system');
+      const chat = document.createElement('div');
+      div.textContent = data.chat;
+      div.appendChild(chat);
+      document.querySelector('#chat-list').appendChild(div);
+    });
+    socket.on('chat', function (data) {
+     
+      const div = document.createElement('div');
+      if (data.user === `{{user}}`) {
+        div.classList.add('mine');
+      } else {
+        div.classList.add('other');
+      }
+      const name = document.createElement('div');
+      name.textContent = data.user;
+      div.appendChild(name);
+      if (data.chat) {
+        const chat = document.createElement('div');
+        chat.textContent = data.chat;
+        div.appendChild(chat);
+      } else {
+        const gif = document.createElement('img');
+        gif.src = '/gif/' + data.gif;
+        div.appendChild(gif);
+      }
+      div.style.color = "black";
+      document.querySelector('#chat-list').appendChild(div);
+    });
+
+    const socket2 = io.connect('{{URL}}', {
+      path: '/socket.io',
+      transports: ['websocket'],
+    });
+
+    
+    socket2.on('chat', function (data) {
+      
+      const div = document.createElement('div');
+      if (data.user === `{{user}}`) {
+        div.classList.add('mine');
+      } else {
+        div.classList.add('other');
+      }
+      const name = document.createElement('div');
+      name.textContent = data.user;
+      div.appendChild(name);
+      if (data.chat) {
+        const chat = document.createElement('div');
+        chat.textContent = data.chat;
+        div.appendChild(chat);
+      } else {
+        const gif = document.createElement('img');
+        gif.src = '/gif/' + data.gif;
+        div.appendChild(gif);
+      }
+      div.style.color = "black";
+      document.querySelector('#chat-list').appendChild(div);
+    });
+
+    socket2.on('forceDisconnect', function (data) {
+          console.log('oihdd')
+          window.location = '{{URL}}kick'
+
+        })
+
+    document.querySelector('#chat-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      console.log('{{room.id}}')
+      if (e.target.chat.value) {
+        axios.post(`/gifchat/room/{{room.id}}/chat`, {
+          chat: this.chat.value,
+        })
+          .then(() => {
+            e.target.chat.value = '';
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      }
+    });
+    document.querySelector('#whisperchat-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (e.target.whisperchat.value) {
+        if(e.target.whisperto.value){
+          axios.post(`/gifchat/room/{{room.id}}/whisperchat`, {
+          chat: this.whisperchat.value,
+          whisperto: this.whisperto.value
+        })
+          .then(() => {
+            e.target.whisperchat.value = '';
+            e.target.whisperto.value = '';
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+        }else{
+          alert('대상을 입력해 주세요');
+          e.target.whisperchat.value = '';
+          e.target.whisperto.value = '';
+        return         
+        }
+      }else {
+        alert('채팅을 입력해 주세요');
+        e.target.whisperchat.value = '';
+        e.target.whisperto.value = '';
+        return
+      }
+    });
+    document.querySelector('#gif').addEventListener('change', function (e) {
+      console.log(e.target.files);
+      const formData = new FormData();
+      formData.append('gif', e.target.files[0]);
+      axios.post(`/gifchat/room/{{room.id}}/gif`, formData)
+        .then(() => {
+          e.target.file = null;
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    });
+
+
+    function NotReload(){
+    if( (event.ctrlKey == true && (event.keyCode == 78 || event.keyCode == 82)) || (event.keyCode == 116) ) {
+        event.keyCode = 0;
+        event.cancelBubble = true;
+        event.returnValue = false;
+    } 
+    }
+    document.onkeydown = NotReload;
+
+    const owner = document.querySelector('#owner').innerText;
+
+    if(owner === `{{user}}`){
+      const forceDisconnect =   document.querySelector('#forceDisconnet');
+      forceDisconnect.innerHTML = `
+      <form action="/forceDisconnect" id="forceDisconnectform" method="post">
+    <input type="text" id="subject" name="subject" placeholder="강퇴할 사람의 id">
+    <button type="submit">강퇴하기</button>
+  </form>   
+      `
+    }
+
+    const forceDisconnectform =  document.querySelector('#forceDisconnectform');
+    if(forceDisconnectform) {
+      forceDisconnectform.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (e.target.subject.value) {
+          axios.post(`/gifchat/room/{{room.id}}/forceDisconnet`, {
+            subject: e.target.subject.value
+          })
+            .then(() => {
+              e.target.subject.value = '';
+            })
+            .catch((err) => {
+              console.error(err);
+            });
+        }
+      });
+    }
+
+  
+
+
+  </script>
+{% endblock %}
