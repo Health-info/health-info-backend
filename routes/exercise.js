@@ -57,4 +57,17 @@ const { Smallpart } = require('../models');
     }
 });
 
+
+/**
+ * @swagger
+ *
+ * /image/{ExerciseId}.png:
+ *  get:
+ *    summary: "Exercis 이미지 조회"
+ *    description: "Get 방식으로 Exercise 이미지를 조회한다."
+ *    tags: [Exercises]
+ */
+
+ 
+
 module.exports = router;
