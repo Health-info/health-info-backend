@@ -6,7 +6,7 @@ SmallpartId:
   Smallpart 의 id 의 foreignkey
 
 name:
-    type: String(30)
+    type: String(40)
     allowNull: false,
 
 description:

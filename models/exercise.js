@@ -4,7 +4,7 @@ module.exports = class Exercise extends Sequelize.Model {
   static init(sequelize) {
     return super.init({
       name: {
-        type: Sequelize.STRING(30),
+        type: Sequelize.STRING(40),
         allowNull: false,
       },
       description: {
